@@ -62,5 +62,11 @@
 			register_post_type( 'popup', $args );
 		}
 		add_action( 'init', 'rm_popup', 0 );
+	//// Enqueue Scripts
+		function rm_popup_scripts() {
+			//('my_amazing_script', plugins_url('amazing_script.js', __FILE__), array('jquery'),'1.1', true);
+			wp_enqueue_script( 'rm-popup-script', plugins_url('assets/js/scripts.js', __FILE__ ), array('jquery'), null, true );
+		}
+		add_action('wp_enqueue_scripts', 'rm_popup_scripts');
 	}
 ?>
