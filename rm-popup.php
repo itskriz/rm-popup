@@ -56,7 +56,7 @@
 				'can_export'            => true,
 				'has_archive'           => false,
 				'exclude_from_search'   => true,
-				'publicly_queryable'    => true,
+				'publicly_queryable'    => false,
 				'capability_type'       => 'page',
 			);
 			register_post_type( 'popup', $args );
@@ -68,5 +68,24 @@
 			wp_enqueue_script( 'rm-popup-script', plugins_url('assets/js/scripts.js', __FILE__ ), array('jquery'), null, true );
 		}
 		add_action('wp_enqueue_scripts', 'rm_popup_scripts');
+	//// Enable ALB
+		function add_builder_to_popup($metabox)
+		{
+		  foreach($metabox as &$meta)
+		  {
+		    if($meta['id'] == 'avia_builder' || $meta['id'] == 'layout')
+		    {
+		      $meta['page'][] = 'popup'; /*instead add the name of the custom post type here*/
+		    }
+		  }
+		  return $metabox;
+		}
+		add_filter('avf_builder_boxes', 'add_builder_to_popup');
+
+	//// Output Popup
+		function get_popup() {
+			$mypost = get_post(34);
+			echo apply_filters('the_content',$mypost->post_content);
+		}
 	}
 ?>
