@@ -64,7 +64,7 @@
 		add_action( 'init', 'rm_popup', 0 );
 	//// Enqueue Scripts
 		function rm_popup_scripts() {
-			//('my_amazing_script', plugins_url('amazing_script.js', __FILE__), array('jquery'),'1.1', true);
+			wp_enqueue_style( 'rm-popup-styles', plugins_url('assets/css/styles.css', __FILE__), false, '', 'all' );
 			wp_enqueue_script( 'rm-popup-script', plugins_url('assets/js/scripts.js', __FILE__ ), array('jquery'), null, true );
 		}
 		add_action('wp_enqueue_scripts', 'rm_popup_scripts');
@@ -81,11 +81,87 @@
 		  return $metabox;
 		}
 		add_filter('avf_builder_boxes', 'add_builder_to_popup');
-
-	//// Output Popup
-		function get_popup() {
-			$mypost = get_post(34);
-			echo apply_filters('the_content',$mypost->post_content);
+	//// Copy Plugin ACFs to Theme ACFs
+		function mv_rm_popup_acf() {
+			$rm_popup_jsons = glob('./wp-content/plugins/rm-popup/assets/acf_json/*.json', GLOB_BRACE);
+			foreach($rm_popup_jsons as $rm_popup_json) {
+				$rm_popup_json_file = plugin_dir_path(__FILE__) . 'assets/acf_json/' . basename($rm_popup_json);
+				$rm_acf_json_dir = get_stylesheet_directory() . '/includes/acf_json/';
+				//copy($rm_popup_json_file, $rm_acf_json_dir . basename($rm_popup_json));
+				if (!file_exists($rm_acf_json_dir . basename($rm_popup_json))) {
+					copy($rm_popup_json_file, $rm_acf_json_dir . basename($rm_popup_json));
+				}
+			}
 		}
+		add_action('wp_head', 'mv_rm_popup_acf');
+	//// Add Global Pop-up's page
+		if( function_exists('acf_add_options_page') ) {	
+			acf_add_options_sub_page(array(
+				'page_title' 	=> 'Global Pop-ups',
+				'menu_title'	=> 'Global Pop-ups',
+				'parent_slug'	=> 'edit.php?post_type=popup',
+			));
+		}
+	//// Get Popup
+		function get_rm_popup($target) {
+			$rm_popup = array(
+				'id' => get_field('rm_popup_post', $target),
+			);
+			if (get_field('rm_popup_start', $target)) {
+				$rm_popup['start'] = get_field('rm_popup_start', $target);
+			}
+			if (get_field('rm_popup_end', $target)) {
+				$rm_popup['end'] = get_field('rm_popup_end', $target);
+			}
+			if (get_field('rm_popup_freq', $target)) {
+				$rm_popup['freq'] = get_field('rm_popup_freq', $target);
+			}
+			if (get_field('rm_popup_display', $target)) {
+				$rm_popup['display'] = get_field('rm_popup_display', $target);
+			}
+			if (get_field('rm_popup_delay', $target)) {
+				$rm_popup['delay'] = get_field('rm_popup_delay', $target);
+			}
+			if (get_field('rm_popup_anchor', $target)) {
+				$rm_popup['anchor'] = get_field('rm_popup_anchor', $target);
+			}
+			return $rm_popup;
+		}
+	//// Make Popup
+		function make_rm_popup($args) {
+			$rm_popup_post = get_post($args['id']);
+			$rm_popup_content = apply_filters('the_content', $rm_popup_post->post_content);
+			if ($args['anchor'] && !empty($args['anchor'])) {
+				$rm_popup_id = $args['anchor'];
+			} else {
+				$rm_popup_id = 'rm-popup-' . $args['id'];
+			}
+			$rm_popup_cookie = 'rmpu-' . $args['id'];
+			$rm_popup_html = '<div id="%s" data-rmpu-cookie="%s" class="rm-popup mfp-hide">%s</div>';
+			echo sprintf($rm_popup_html, $rm_popup_id, $rm_popup_cookie, $rm_popup_content);
+		}
+	//// Global Popup Args
+		function rm_popup_global_args() {
+			if (get_field('rm_popup_enabled', 'option')) {
+				$rm_global_popup = get_rm_popup('option');
+
+				$rm_popup_select = get_field('rm_popup_select', 'option');
+				if ('all' !== $rm_popup_select) {
+					$rm_popup_selected = get_field('rm_popup_posts', 'option');
+				} else {
+					$rm_popup_selected = null;
+				}
+				if (null !== $rm_popup_selected) {
+					foreach ($rm_popup_selected as $rm_post_id) {
+						if ('include' === $rm_popup_select && (is_single($rm_post_id) || is_page($rm_post_id))) {
+							make_rm_popup($rm_global_popup);
+						} elseif ('exclude' === $rm_popup_select && (!is_single($rm_post_id) && !is_page($rm_post_id))) {
+							print_r($rm_global_popup);
+						}
+					}
+				}
+			}
+		}
+		add_action('wp_footer', 'rm_popup_global_args');
 	}
 ?>

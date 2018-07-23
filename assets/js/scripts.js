@@ -1,8 +1,8 @@
 jQuery(document).ready(function($) {
-	// Open iFrame in Lightbox
-	$('.lightbox-iframe').each(function() {
-		var $this = $(this).find('a');
-		var _href = $this.attr('href');
-		$this.attr('href', _href + '?iframe=true');
+	$('.rm-popup-link a, a.rm-popup-link').magnificPopup({
+	  type: 'inline',
+	  src: $(this).attr('href'),
+	  mainClass: 'mfp-with-zoom',
+	  removalDelay: 300,
 	});
-})
+});

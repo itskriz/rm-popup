@@ -1,0 +1,371 @@
+{
+    "key": "group_5b55eb0813d3e",
+    "title": "Global Pop-Up",
+    "fields": [
+        {
+            "key": "field_5b55eb0824361",
+            "label": "Enable\/Disable Pop-up",
+            "name": "rm_popup_enabled",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "35",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "Enabled",
+            "ui_off_text": "Disabled"
+        },
+        {
+            "key": "field_5b55eb082586e",
+            "label": "Note:",
+            "name": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "65",
+                "class": "",
+                "id": ""
+            },
+            "message": "A global pop-up set to display on page load will override popups set to display on page load in individual pages.",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_5b55eb0824b40",
+            "label": "Select Pop-up",
+            "name": "rm_popup_post",
+            "type": "post_object",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5b55eb0824361",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "60",
+                "class": "",
+                "id": ""
+            },
+            "post_type": [
+                "popup"
+            ],
+            "taxonomy": [],
+            "allow_null": 0,
+            "multiple": 0,
+            "return_format": "id",
+            "ui": 1
+        },
+        {
+            "key": "field_5b55f0b006215",
+            "label": "Pop-up Display Logic",
+            "name": "rm_popup_select",
+            "type": "radio",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5b55eb0824361",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "30",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "all": "All Pages",
+                "include": "Only Specific Pages",
+                "exclude": "Exclude Specific Pages"
+            },
+            "allow_null": 0,
+            "other_choice": 0,
+            "default_value": "all",
+            "layout": "vertical",
+            "return_format": "value",
+            "save_other_choice": 0
+        },
+        {
+            "key": "field_5b55ef52cdefa",
+            "label": "Choose Pages\/Posts",
+            "name": "rm_popup_posts",
+            "type": "post_object",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5b55eb0824361",
+                        "operator": "==",
+                        "value": "1"
+                    },
+                    {
+                        "field": "field_5b55f0b006215",
+                        "operator": "!=",
+                        "value": "all"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "post_type": [
+                "post",
+                "page",
+                "portfolio"
+            ],
+            "taxonomy": [],
+            "allow_null": 0,
+            "multiple": 1,
+            "return_format": "id",
+            "ui": 1
+        },
+        {
+            "key": "field_5b55eb0825356",
+            "label": "Start Displaying On:",
+            "name": "rm_popup_start",
+            "type": "date_time_picker",
+            "instructions": "If left blank, the popup will be displayed immediately.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5b55eb0824361",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "display_format": "F j, Y g:i a",
+            "return_format": "d\/m\/Y g:i a",
+            "first_day": 0
+        },
+        {
+            "key": "field_5b55eb0825412",
+            "label": "Stop Displaying On:",
+            "name": "rm_popup_end",
+            "type": "date_time_picker",
+            "instructions": "If left blank, the pop-up will be displayed indefinitely.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5b55eb0824361",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "display_format": "F j, Y g:i a",
+            "return_format": "d\/m\/Y g:i a",
+            "first_day": 0
+        },
+        {
+            "key": "field_5b55eb08254ca",
+            "label": "Display Trigger",
+            "name": "rm_popup_display",
+            "type": "checkbox",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5b55eb0824361",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "30",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "auto": "Page Load",
+                "user": "User Action"
+            },
+            "allow_custom": 0,
+            "default_value": [
+                "auto"
+            ],
+            "layout": "horizontal",
+            "toggle": 0,
+            "return_format": "value",
+            "save_custom": 0
+        },
+        {
+            "key": "field_5b55eb0825583",
+            "label": "Dismiss Trigger",
+            "name": "rm_popup_dismiss",
+            "type": "radio",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5b55eb0824361",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "30",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "close": "Dismissible",
+                "user": "Action Required"
+            },
+            "allow_null": 0,
+            "other_choice": 0,
+            "default_value": "close",
+            "layout": "horizontal",
+            "return_format": "value",
+            "save_other_choice": 0
+        },
+        {
+            "key": "field_5b55eb08256f6",
+            "label": "Redisplay Interval (days)",
+            "name": "rm_popup_freq",
+            "type": "number",
+            "instructions": "(days)",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5b55eb0824361",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "20",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 3,
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "min": 0,
+            "max": "",
+            "step": ""
+        },
+        {
+            "key": "field_5b55eb08257ac",
+            "label": "Pop-up Delay on Page Load",
+            "name": "rm_popup_delay",
+            "type": "number",
+            "instructions": "(seconds)",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5b55eb0824361",
+                        "operator": "==",
+                        "value": "1"
+                    },
+                    {
+                        "field": "field_5b55eb08254ca",
+                        "operator": "==",
+                        "value": "auto"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "20",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 10,
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "min": 0,
+            "max": "",
+            "step": ""
+        },
+        {
+            "key": "field_5b55eb082563f",
+            "label": "Pop-up Anchor ID",
+            "name": "rm_popup_anchor",
+            "type": "text",
+            "instructions": "",
+            "required": 1,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5b55eb0824361",
+                        "operator": "==",
+                        "value": "1"
+                    },
+                    {
+                        "field": "field_5b55eb08254ca",
+                        "operator": "==",
+                        "value": "user"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "100",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": 16
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "acf-options-global-pop-ups"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": 1,
+    "description": "",
+    "modified": 1532372919
+}
