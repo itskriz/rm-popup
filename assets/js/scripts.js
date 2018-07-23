@@ -1,7 +1,8 @@
 jQuery(document).ready(function($) {
-	// Automatically make Popup links active
-	var popupPath = 'a[href*="' + window.location.hostname + '/popup"]';
-	$(popupPath).each(function() {
-		$(this).magnificPopup({type:'iframe'});
+	// Open iFrame in Lightbox
+	$('.lightbox-iframe').each(function() {
+		var $this = $(this).find('a');
+		var _href = $this.attr('href');
+		$this.attr('href', _href + '?iframe=true');
 	});
 })
