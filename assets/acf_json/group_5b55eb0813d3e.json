@@ -55,7 +55,7 @@
                 ]
             ],
             "wrapper": {
-                "width": "60",
+                "width": "45",
                 "class": "",
                 "id": ""
             },
@@ -67,6 +67,37 @@
             "multiple": 0,
             "return_format": "id",
             "ui": 1
+        },
+        {
+            "key": "field_5b61aa8455bcd",
+            "label": "Popup Size",
+            "name": "rm_popup_size",
+            "type": "button_group",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_5b55eb0824361",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "sm": "Small",
+                "md": "Medium",
+                "lg": "Large"
+            },
+            "allow_null": 0,
+            "default_value": "md",
+            "layout": "horizontal",
+            "return_format": "value"
         },
         {
             "key": "field_5b55f0b006215",
@@ -160,7 +191,7 @@
                 "id": ""
             },
             "display_format": "F j, Y g:i a",
-            "return_format": "d\/m\/Y g:i a",
+            "return_format": "Y-m-d H:i:s",
             "first_day": 0
         },
         {
@@ -185,7 +216,7 @@
                 "id": ""
             },
             "display_format": "F j, Y g:i a",
-            "return_format": "d\/m\/Y g:i a",
+            "return_format": "Y-m-d H:i:s",
             "first_day": 0
         },
         {
@@ -367,5 +398,5 @@
     "hide_on_screen": "",
     "active": 1,
     "description": "",
-    "modified": 1532372919
+    "modified": 1533127461
 }

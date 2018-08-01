@@ -1,8 +1,8 @@
 <?php
 	/*
 	Plugin Name: Roar Media Pop-ups
-	Description: A plugin that extends the Roar Media theme for additional popup functionality. <strong>Requires Roar Media theme and Advanced Custom Fields Pro!</strong>
-	Version: 0.0.1
+	Description: A plugin that extends the Roar Media theme for additional popup functionality. <strong>Requires Roar Media theme,  Advanced Custom Fields Pro!</strong>
+	Version: 1.0.0
 	Author: Roar Media, Kris Williams
 	Author URI: mailto:webmaster@roarmedia.com
 	*/
@@ -10,7 +10,7 @@
 	// Check if Roar Media child theme active and if ACF is being used.
 	if ('roarmedia' === $rm_themename->get('TextDomain') && function_exists('acf_get_field')) {
 	//// Register Custom Post Type
-		function rm_popup() {
+		function rm_popup_cpt() {
 			$labels = array(
 				'name'                  => _x( 'Pop-ups', 'Post Type General Name', 'text_domain' ),
 				'singular_name'         => _x( 'Pop-up', 'Post Type Singular Name', 'text_domain' ),
@@ -61,11 +61,13 @@
 			);
 			register_post_type( 'popup', $args );
 		}
-		add_action( 'init', 'rm_popup', 0 );
+		add_action( 'init', 'rm_popup_cpt', 0 );
 	//// Enqueue Scripts
 		function rm_popup_scripts() {
 			wp_enqueue_style( 'rm-popup-styles', plugins_url('assets/css/styles.css', __FILE__), false, '', 'all' );
+			wp_enqueue_script( 'js-cookie', plugins_url('assets/js/js.cookie.js', __FILE__ ), array(), null, false );
 			wp_enqueue_script( 'rm-popup-script', plugins_url('assets/js/scripts.js', __FILE__ ), array('jquery'), null, true );
+
 		}
 		add_action('wp_enqueue_scripts', 'rm_popup_scripts');
 	//// Enable ALB
@@ -93,7 +95,9 @@
 				}
 			}
 		}
-		add_action('wp_head', 'mv_rm_popup_acf');
+		if (function_exists('rm_sync_acf_fields')) {
+			add_action('wp_head', 'mv_rm_popup_acf');
+		}
 	//// Add Global Pop-up's page
 		if( function_exists('acf_add_options_page') ) {	
 			acf_add_options_sub_page(array(
@@ -107,17 +111,29 @@
 			$rm_popup = array(
 				'id' => get_field('rm_popup_post', $target),
 			);
+			if (get_field('rm_popup_size', $target)) {
+				$rm_popup['size'] = get_field('rm_popup_size', $target);
+			} else {
+				$rm_popup['size'] = 'md';
+			}
 			if (get_field('rm_popup_start', $target)) {
 				$rm_popup['start'] = get_field('rm_popup_start', $target);
+			} else {
+				$rm_popup['start'] = null;
 			}
 			if (get_field('rm_popup_end', $target)) {
 				$rm_popup['end'] = get_field('rm_popup_end', $target);
+			} else {
+				$rm_popup['end'] = null;
 			}
 			if (get_field('rm_popup_freq', $target)) {
 				$rm_popup['freq'] = get_field('rm_popup_freq', $target);
 			}
 			if (get_field('rm_popup_display', $target)) {
 				$rm_popup['display'] = get_field('rm_popup_display', $target);
+			}
+			if (get_field('rm_popup_dismiss', $target)) {
+				$rm_popup['dismiss'] = get_field('rm_popup_dismiss', $target);
 			}
 			if (get_field('rm_popup_delay', $target)) {
 				$rm_popup['delay'] = get_field('rm_popup_delay', $target);
@@ -128,40 +144,91 @@
 			return $rm_popup;
 		}
 	//// Make Popup
-		function make_rm_popup($args) {
+		function make_rm_popup($args, $global = false) {
 			$rm_popup_post = get_post($args['id']);
 			$rm_popup_content = apply_filters('the_content', $rm_popup_post->post_content);
-			if ($args['anchor'] && !empty($args['anchor'])) {
+			if (in_array('user', $args['display']) && ($args['anchor'] && !empty($args['anchor']))) {
 				$rm_popup_id = $args['anchor'];
 			} else {
 				$rm_popup_id = 'rm-popup-' . $args['id'];
 			}
+			$rm_popup_size = $args['size'];
 			$rm_popup_cookie = 'rmpu-' . $args['id'];
-			$rm_popup_html = '<div id="%s" data-rmpu-cookie="%s" class="rm-popup mfp-hide">%s</div>';
-			echo sprintf($rm_popup_html, $rm_popup_id, $rm_popup_cookie, $rm_popup_content);
+			$rm_popup_freq = $args['freq'];
+			$rm_popup_dismiss = $args['dismiss'];
+			$rm_popup_display = implode(' ', $args['display']);
+			$rm_popup_delay = $args['delay'];
+			if (true === $global && in_array('auto', $args['display'])) {
+				$rm_popup_global = 'true';
+			} else {
+				$rm_popup_global = 'false';
+			}
+			$rm_popup_html = '<div id="%s" data-rmpu-cookie="%s" data-rmpu-global="%s" data-rmpu-dismiss="%s" data-rmpu-display="%s" data-rmpu-delay="%s" data-rmpu-freq="%s" data-rmpu-size="%s" class="rm-popup mfp-hide">%s</div>';
+			echo sprintf($rm_popup_html, $rm_popup_id, $rm_popup_cookie, $rm_popup_global, $rm_popup_dismiss, $rm_popup_display, $rm_popup_delay, $rm_popup_freq, $rm_popup_size, $rm_popup_content);
+		}
+	//// Check Popup
+		function check_rm_popup($id, $start = null, $end = null) {
+			$date = date('Y-m-d H:i:s');
+			if (null === $start || date($date) >= date($start)) {
+				echo 'Date is greater than or equal to start.';
+				if (null === $end || date($date) <= date($end)) {
+					echo 'Date is less than or equal to end.';
+					return true;
+				} else {
+					echo 'Date is greater than end.';
+					return false;
+				}
+			} else {
+				echo 'Date is less than start.';
+				return false;
+			}
 		}
 	//// Global Popup Args
-		function rm_popup_global_args() {
+		function rm_popup() {
+			global $post;
+			// Do Global
 			if (get_field('rm_popup_enabled', 'option')) {
 				$rm_global_popup = get_rm_popup('option');
 
-				$rm_popup_select = get_field('rm_popup_select', 'option');
-				if ('all' !== $rm_popup_select) {
-					$rm_popup_selected = get_field('rm_popup_posts', 'option');
-				} else {
-					$rm_popup_selected = null;
+				/* NEED TO FIX THIS SO THAT IF NOT PAGE LOAD THEN IGNORE START AND STOP TIMES */
+
+				$rm_global_popup_show = check_rm_popup($rm_global_popup['id'], $rm_global_popup['start'], $rm_global_popup['end']);
+				if (false === $rm_global_popup_show && in_array('user', $rm_global_popup['display'])) {
+					$rm_global_popup_show = true;
+					$rm_global_popup['display'] = array('user');
 				}
-				if (null !== $rm_popup_selected) {
-					foreach ($rm_popup_selected as $rm_post_id) {
-						if ('include' === $rm_popup_select && (is_single($rm_post_id) || is_page($rm_post_id))) {
-							make_rm_popup($rm_global_popup);
-						} elseif ('exclude' === $rm_popup_select && (!is_single($rm_post_id) && !is_page($rm_post_id))) {
-							print_r($rm_global_popup);
+				if (true === $rm_global_popup_show) {
+					$rm_global_popup_select = get_field('rm_popup_select', 'option');
+					if ('all' !== $rm_popup_select) {
+						$rm_global_popup_selected = get_field('rm_popup_posts', 'option');
+					} else {
+						$rm__globalpopup_selected = null;
+					}
+					if (null !== $rm_global_popup_selected) {
+						foreach ($rm_global_popup_selected as $rm_global_post_id) {
+							if ( ('all' === $rm_global_popup_select) || ('include' === $rm_global_popup_select && (is_single($rm_global_post_id) || is_page($rm_global_post_id))) ) {
+								make_rm_popup($rm_global_popup, true);
+							}
+						}
+						if ( 'exclude' === $rm_global_popup_select && !in_array($post->ID, $rm_global_popup_selected)) {
+							make_rm_popup($rm_global_popup, true);
 						}
 					}
 				}
 			}
+			// Do Page Popups
+			if (get_field('rm_popup_enabled', $post->id)) {
+				$rm_popup = get_rm_popup($post->id);
+				$rm_popup_show = check_rm_popup($rm_popup['id'], $rm_popup['start'], $rm_popup['end']);
+				if (false === $rm_popup_show && in_array('user', $rm_popup['display'])) {
+					$rm_popup_show = true;
+					$rm_popup['display'] = array('user');
+				}
+				if (true === $rm_popup_show) {
+					make_rm_popup($rm_popup);
+				}
+			}
 		}
-		add_action('wp_footer', 'rm_popup_global_args');
+		add_action('wp_footer', 'rm_popup');
 	}
 ?>

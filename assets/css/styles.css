@@ -11,6 +11,15 @@
 	content: '';
 	display: table;
 }
+.rm-popup--sm {
+  max-width: 700px;
+}
+.rm-popup--md {
+  max-width: 900px;
+}
+.rm-popup--lg {
+  max-width: 1200px;
+}
 .mfp-with-zoom .mfp-container,
 .mfp-with-zoom.mfp-bg {
   opacity: 0;
